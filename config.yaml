@@ -18,4 +18,4 @@ channels:
   publish: [helloWorldInferenceExtensionChannel]
 
 models:
-  - url: https://ipapi.co
+  - url: https://www.virustotal.com/api/v3/ip_addresses
