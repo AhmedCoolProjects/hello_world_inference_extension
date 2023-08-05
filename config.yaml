@@ -1,0 +1,21 @@
+id: hello_world_inference_extension
+name: Hello World inference Extension
+description: This is a hello world inference extension
+version: 1.0.0
+authors: Ahmed Bargady <https://github.com/AhmedCoolProjects>
+license: BSD
+
+repository:
+
+requirements: requirements.txt
+
+log:
+  dir: ./logs
+  level: ERROR
+
+channels:
+  subscribe: [helloWorldFeatureExtensionChannel]
+  publish: [helloWorldInferenceExtensionChannel]
+
+models:
+  - url: https://ipapi.co
