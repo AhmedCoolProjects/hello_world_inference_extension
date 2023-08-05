@@ -21,19 +21,19 @@ class HelloWorldInferenceExtension(IMultiprocessPlugin):
 
     def run(self):
         for model in self.config.models:
-            print("Start")
             my_model = InferenceModelPipeline(**model)
             self._get_input(my_model)
 
     def _get_input(self, model: InferenceModelPipeline):
 
+        logger = Logger(self.config.log, __name__.split('.')[-1])
+
         for data in __db__.get_message():
-            logger = Logger(self.config.log, __name__.split('.')[-1])
             i = 0
             t = time()
             url = model.url
             if data['type'] == 'message':
-                if time() - t > 3:
+                if True:
                     logger.debug(f'{i} items processed')
                     t = time()
                     self._get_prediction_and_publish(
@@ -43,22 +43,23 @@ class HelloWorldInferenceExtension(IMultiprocessPlugin):
     def _get_prediction_and_publish(self, data, url, id):
 
         ip_data = __db__.retrieve('ip_data', data)
-        src_city = requests.get(f'{url}/{ip_data["src_ip"]}/city/').content
-        dst_city = requests.get(f'{url}/{ip_data["dst_ip"]}/city/').content
+        url = f"{url}/{ip_data['src_ip']}"
 
+        headers = {
+            "accept": "application/json",
+            "x-apikey": "705ff1ea0b1e1a8df9e7526cf8dc21a5787089df8529e1baba684d9b0dbc894f"
+        }
+
+        response = requests.get(url, headers=headers)
+        response_json = response.json()
         log = {
             'id': id,
             'timestamp': int(time()),
             'data': data.decode(),
-            'prediction': {
-                'src_city': src_city,
-                'dst_city': dst_city
-            },
+            'result': response_json,
             'url': url
         }
 
-        print("--> Prediction: ", log)
-        print("--> Data: ", data.decode())
         __db__.store('inference', id, log)
 
         for ch in self.config.channels.publish:
