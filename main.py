@@ -11,13 +11,13 @@ class HelloWorldInferenceExtension(IMultiprocessPlugin):
     def __init__(self, p):
         IMultiprocessPlugin.__init__(self, p)
 
-        # TODO: to be added as a simple function in the sonic engine
-        self.config = loadConfig(InferenceCustomConfig, relative(
-            __file__, './config.yaml'))
-
+        data = p.recv()
+        self.config = data['config']
+        message = data['message']
+        
         __db__.register_extension(self.config)
 
-        print("--> Hello World Inference Extension Loaded")
+        print(f'{message}')
 
     def run(self):
         for model in self.config.models:
