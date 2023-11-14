@@ -5,8 +5,6 @@ version: 1.0.0
 authors: Ahmed Bargady <https://github.com/AhmedCoolProjects>
 license: BSD
 
-repository:
-
 requirements: requirements.txt
 
 log:
