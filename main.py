@@ -1,10 +1,9 @@
 import requests
 from time import time
 from yapsy.IMultiprocessPlugin import IMultiprocessPlugin
-from sonic_engine.util.functions import loadConfig, relative
-from sonic_engine.model.log import LogOptions, Logger
+from sonic_engine.model.log import Logger
 from sonic_engine.core.database import __db__
-from .config_types.extensions import InferenceCustomConfig, InferenceModelPipeline
+from .config_types.extensions import InferenceModelPipeline
 
 
 class HelloWorldInferenceExtension(IMultiprocessPlugin):
@@ -12,12 +11,12 @@ class HelloWorldInferenceExtension(IMultiprocessPlugin):
         IMultiprocessPlugin.__init__(self, p)
 
         data = p.recv()
-        self.config = data['config']
-        message = data['message']
-        
+        self.config = data["config"]
+        message = data["message"]
+
         __db__.register_extension(self.config)
 
-        print(f'{message}')
+        print(f"{message}")
 
     def run(self):
         for model in self.config.models:
@@ -25,42 +24,39 @@ class HelloWorldInferenceExtension(IMultiprocessPlugin):
             self._get_input(my_model)
 
     def _get_input(self, model: InferenceModelPipeline):
-
-        logger = Logger(self.config.log, __name__.split('.')[-1])
+        logger = Logger(self.config.log, __name__.split(".")[-1])
 
         for data in __db__.get_message():
             i = 0
             t = time()
             url = model.url
-            if data['type'] == 'message':
+            if data["type"] == "message":
                 if True:
-                    logger.debug(f'{i} items processed')
+                    logger.debug(f"{i} items processed")
                     t = time()
-                    self._get_prediction_and_publish(
-                        data['data'], url, i)
+                    self._get_prediction_and_publish(data["data"], url, i)
                     i += 1
 
     def _get_prediction_and_publish(self, data, url, id):
-
-        ip_data = __db__.retrieve('ip_data', data)
+        ip_data = __db__.retrieve("ip_data", data)
         url = f"{url}/{ip_data['src_ip']}"
 
         headers = {
             "accept": "application/json",
-            "x-apikey": "705ff1ea0b1e1a8df9e7526cf8dc21a5787089df8529e1baba684d9b0dbc894f"
+            "x-apikey": "705ff1ea0b1e1a8df9e7526cf8dc21a5787089df8529e1baba684d9b0dbc894f",
         }
 
         response = requests.get(url, headers=headers)
         response_json = response.json()
         log = {
-            'id': id,
-            'timestamp': int(time()),
-            'data': data.decode(),
-            'result': response_json,
-            'url': url
+            "id": id,
+            "timestamp": int(time()),
+            "data": data.decode(),
+            "result": response_json,
+            "url": url,
         }
 
-        __db__.store('inference', id, log)
+        __db__.store("inference", id, log)
 
         for ch in self.config.channels.publish:
             __db__.publish(ch, id)
