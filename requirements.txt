@@ -22,3 +22,4 @@ urllib3==2.0.4
 Werkzeug==2.3.6
 wrapt==1.15.0
 Yapsy==1.12.2
+scapy==2.5.0
